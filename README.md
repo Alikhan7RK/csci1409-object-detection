@@ -4,7 +4,8 @@ Author: Alikhan Ryskulov · Student ID 24B031980
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Alikhan7RK/csci1409-object-detection/blob/main/notebooks/object_detection_colab.ipynb)
 
-> **Results status:** sections marked ⏳ are filled in from the Colab run (`outputs.zip`).
+**Final result (held-out test set, 205 images):** mAP@0.50 = **0.971**, mAP@0.50:0.95 = **0.808**,
+precision = 0.969, recall = 0.917 · model: YOLO11n at 640 px · checkpoint: [`weights/best.pt`](weights/best.pt)
 
 ## 1. Task
 Fine-tune a COCO-pretrained object detector to find and classify four African animals (**buffalo,
@@ -62,12 +63,18 @@ split, which is allowed. Every image has at least one object.
 * **Missing / wrong-label check** (`check_missing_labels.py`): a COCO-pretrained YOLO11m acts as a
   second opinion. COCO already knows *elephant* and *zebra*. A confident COCO detection (conf ≥ 0.5) that
   overlaps no ground-truth box is a **missing-label candidate**. COCO has no *rhino* or *buffalo* class (it
-  calls rhinos "elephant"), so those overlaps are ignored. Spot checks of the candidates found real
-  **missing labels on animals that are cut off at the image edge, very small/distant, or partly hidden**
-  (for example `val/1 (296).jpg`, a distant zebra on the right edge; `val/4 (301).jpg`, a half-visible
-  zebra on the left edge; `val/2 (109).jpg`, an elephant partly hidden behind a person). I did **not**
-  re-label them, so the dataset stays the published one. They are listed as a limitation, and they explain
-  some "false positives" at test time. ⏳ The full candidate list is in `results/data/label_check_candidates.csv`.
+  calls rhinos "elephant"), so those overlaps are ignored. The check flagged **123 boxes in 87 images**
+  (90 in train, 19 in val, 14 in test). I inspected the 12 most confident by eye, and nearly all are real:
+  * **Missing labels** on animals that are **cut off at the image edge** (`train/4 (256).jpg`,
+    `train/2 (116).jpg`, `train/2 (33).jpg`), **small or distant** (`train/2 (360).jpg`,
+    `test/2 (290).jpg`, `train/2 (237).jpg`) or **partly hidden** behind other animals
+    (`train/2 (5).jpg`, `val/4 (32).jpg`).
+  * **One wrong class label:** `train/3 (374).jpg` shows a rhino but is labelled **zebra**.
+
+  I did **not** re-label anything, so the dataset stays the published one. The list is in
+  [`results/data/label_check_candidates.csv`](results/data/label_check_candidates.csv) and the examples are in
+  [`results/data/label_check_candidates.jpg`](results/data/label_check_candidates.jpg). These labelling gaps
+  also explain some of the test-set "false positives" in section 7.
 
 Ground-truth examples (training split):
 
@@ -122,7 +129,7 @@ model.predict("some_image.jpg", conf=0.25, save=True)
 
 | Setting | Value |
 |---|---|
-| Framework | Ultralytics **8.4.215** (PyTorch ⏳ version from `run_info.json`) |
+| Framework | Ultralytics **8.4.215**, PyTorch 2.14.1 (CUDA 13.0), Python 3.13.16 |
 | Model / initial weights | **YOLO11n**, `yolo11n.pt` (COCO-pretrained, ~2.6 M parameters) |
 | Image size | 640 (baseline) |
 | Batch size | 16 |
@@ -131,13 +138,23 @@ model.predict("some_image.jpg", conf=0.25, save=True)
 | Augmentation | Ultralytics defaults (mosaic, HSV jitter, horizontal flip, scale/translate), identical in both runs |
 | Seed | 42, `deterministic=True` |
 | Checkpoint selection | `best.pt` = epoch with the highest **validation** fitness (in Ultralytics 8.4 fitness = val mAP@0.5:0.95) |
-| Hardware / training time | ⏳ |
+| Hardware / training time | Google Colab, **NVIDIA Tesla T4**. Baseline 11.5 min, experiment 7.2 min |
 
 Configuration: [`configs/baseline.yaml`](configs/baseline.yaml) · logs: `results/baseline/results.csv` ·
 run details: `results/baseline/run_info.json`.
 
-⏳ Learning curves: `results/baseline/results.png`, `results/exp_imgsz320/results.png`, and both runs together in
-`results/learning_curves_comparison.png`.
+### Learning curves
+![Learning curves](results/learning_curves_comparison.png)
+
+Full Ultralytics plots for each run: [`results/baseline/results.png`](results/baseline/results.png),
+[`results/exp_imgsz320/results.png`](results/exp_imgsz320/results.png).
+
+* **No overfitting.** Validation box loss falls until the last epoch (0.64 at epoch 40), and the best
+  checkpoint of both runs is **epoch 37**. A few more epochs could still help slightly.
+* The **early dip** (epochs 2–7) happens while the new 4-class detection head replaces the COCO head under
+  the warm-up learning rate. Validation mAP recovers by epoch 10.
+* The **sharp drop in training loss at epoch 30** is expected. Ultralytics switches off mosaic augmentation
+  for the last 10 epochs (`close_mosaic=10`), so the training images suddenly become easier.
 
 ## 5. Controlled experiment: image size 640 → 320
 
@@ -150,31 +167,65 @@ validation mAP@0.50 only slightly (≤ 3 points), while training and inference g
 of the loss should come from small or distant animals and from herds, where an animal shrinks to a few
 pixels at 320.
 
-⏳ **Validation results** (eval conf = 0.001, NMS IoU = 0.7):
+**Validation results** (215 images; eval conf = 0.001, NMS IoU = 0.7; T4 GPU):
 
-| Run | Changed setting | Val precision | Val recall | Val mAP@0.50 | Val mAP@0.50:0.95 | Training time (min) |
-|---|---|---|---|---|---|---|
-| baseline | imgsz = 640 | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
-| exp_imgsz320 | imgsz = 320 | ⏳ | ⏳ | ⏳ | ⏳ | ⏳ |
+| Run | Changed setting | Val precision | Val recall | Val mAP@0.50 | Val mAP@0.50:0.95 | Training time (min) | Inference (ms/img) |
+|---|---|---|---|---|---|---|---|
+| **baseline** | imgsz = 640 | **0.965** | **0.882** | **0.954** | **0.803** | 11.5 | 3.8 |
+| exp_imgsz320 | imgsz = 320 | 0.945 | 0.870 | 0.949 | 0.774 | **7.2** | **2.3** |
+| difference | | −0.020 | −0.012 | **−0.005** | **−0.029** | **−37 %** | **−40 %** |
 
-⏳ **Explanation:** _(written after the run: was the hypothesis confirmed? which classes and which objects
-lost the most? what was the speed/accuracy trade-off?)_
+Per class (val mAP@0.50 / mAP@0.50:0.95):
+
+| Class | baseline (640) | experiment (320) |
+|---|---|---|
+| buffalo | 0.944 / 0.811 | 0.970 / 0.799 |
+| elephant | 0.954 / 0.792 | 0.923 / 0.759 |
+| rhino | 0.965 / 0.848 | 0.962 / 0.823 |
+| zebra | 0.950 / 0.759 | 0.941 / 0.714 |
+
+**Explanation.** The hypothesis was **confirmed**. Halving the resolution cost only **0.5 points of
+mAP@0.50**, far below the 3-point limit I predicted, while training became 37 % faster and inference 40 %
+faster. The animals are large, so at IoU 0.5 they are still found at 320 px.
+
+The cost appears in the **stricter metric**: mAP@0.50:0.95 dropped by **2.9 points**. At 320 px each pixel
+covers twice as much of the scene, so box edges are less precise. The model still finds the animal, but the
+box fits it less tightly. The biggest losses were for **zebra (−4.4 points mAP@0.50:0.95)** and
+**elephant (−3.3)**. Those are the classes that most often appear as herds of small, overlapping animals,
+which is exactly where I expected the low resolution to hurt. Buffalo's mAP@0.50 went *up* by 2.6 points.
+With only 86 buffalo boxes in val and a single training seed, I read that as noise rather than a real gain.
+Overall, 320 px is a good choice when speed matters (for example on a camera trap), and 640 px is better
+when box accuracy matters.
 
 **Final run selection rule:** highest validation mAP@0.50. If the two runs are within 0.005, the higher
-mAP@0.50:0.95 wins. The test set was not used for this choice. ⏳ Selected run: …
+mAP@0.50:0.95 wins. The test set was not used for this choice. **Selected run: baseline (imgsz 640).**
+The mAP@0.50 gap (0.0047) is within 0.005, so the tie-break decided: the baseline's mAP@0.50:0.95 is
+0.803 against 0.774. The choice is recorded in [`results/final_run.json`](results/final_run.json).
 
 ## 6. Final test results
 
 Final checkpoint: [`weights/best.pt`](weights/best.pt) · direct download:
 `https://github.com/Alikhan7RK/csci1409-object-detection/raw/main/weights/best.pt`
 
-⏳ **Held-out test set** (205 images, 340 objects):
+**Held-out test set** (205 images, 340 objects), final model = baseline `best.pt`, imgsz 640:
 
-| Precision | Recall | mAP@0.50 | mAP@0.50:0.95 |
-|---|---|---|---|
-| ⏳ | ⏳ | ⏳ | ⏳ |
+| Class | Precision | Recall | mAP@0.50 | mAP@0.50:0.95 |
+|---|---|---|---|---|
+| buffalo | 0.995 | 0.922 | 0.967 | 0.837 |
+| elephant | 0.952 | 0.865 | 0.960 | 0.764 |
+| rhino | 0.985 | 0.977 | 0.987 | 0.881 |
+| zebra | 0.945 | 0.905 | 0.971 | 0.751 |
+| **all** | **0.969** | **0.917** | **0.971** | **0.808** |
 
-Per-class results are in `results/metrics/final_test.json`.
+Test results are close to validation (mAP@0.50 0.971 vs 0.954), so the model generalises to unseen photos
+and the validation-based model choice was not overfitted to val. Elephant and zebra have the lowest
+mAP@0.50:0.95, matching the herd/occlusion failures below. Confusion matrix:
+[`results/eval_plots/final_test/confusion_matrix.png`](results/eval_plots/final_test/confusion_matrix.png).
+
+At the deployment threshold **conf = 0.25**, the model made 358 predictions on test: 320 correct, 31 false
+positives, 5 badly placed boxes and 2 wrong classes. It missed 20 of the 340 animals, giving
+**precision 0.894 and recall 0.941** at that threshold. 163 of 205 test images (80 %) had no error at all
+([`results/test_predictions/summary.json`](results/test_predictions/summary.json)).
 
 **Evaluation settings:** confidence threshold **0.001** (keeps almost every prediction so the full
 precision–recall curve can be measured), NMS IoU **0.7**, and a match counts as correct when **IoU ≥ 0.50**
@@ -189,7 +240,7 @@ with a ground-truth box of the same class. The prediction images and failure ana
   averaged over the 4 classes. It summarises performance over all confidence thresholds.
 * **mAP@0.50:0.95**: the same, averaged over IoU thresholds 0.50, 0.55 … 0.95, so it also rewards tight boxes.
 
-⏳ Test predictions (boxes, class names, confidence):
+Test predictions at conf ≥ 0.25 (box, class, confidence; solid = correct, dashed = error):
 
 ![Test predictions](results/test_predictions/predictions_grid.jpg)
 
@@ -198,11 +249,40 @@ with a ground-truth box of the same class. The prediction images and failure ana
 each image as **missed**, **false positive**, **wrong class** or **poor box**. Galleries:
 `results/test_predictions/failures_*.jpg` (left: ground truth, right: prediction).
 
-⏳ 1. **…** · cause · …
-⏳ 2. **…** · cause · …
-⏳ 3. **…** · cause · …
+**1. Small, distant animals in herds are missed.**
+In `test/2 (130).jpg` (a herd of elephants far away across a river) the model found 7 of 10 elephants. The
+3 smallest, overlapping ones were missed or got low-confidence, badly placed boxes (0.28).
+`test/4 (294).jpg` (a distant zebra herd) shows the same pattern of lower confidences (0.33–0.44).
+*Cause:* each animal is only a few dozen pixels wide even at 640 px, and most training photos show large,
+centred animals. This also explains why zebra and elephant suffered most in the 320 px experiment.
 
-⏳ **Practical next step:** …
+**2. Overlapping and partly hidden animals get merged or split boxes.**
+In `test/2 (97).jpg` the middle elephant is mostly hidden behind the front one. Its predicted box covers
+only the visible slice (IoU < 0.5), so it counts as a poor box and a miss. In `test/4 (116).jpg` (a dark
+webcam frame) two overlapping zebras were merged into **one** box. In `test/4 (81).jpg` the white fence
+bars cut a zebra into pieces, and the model drew two extra partial boxes. *Cause:* NMS removes boxes that
+overlap strongly, so two animals standing close together look like one object. Occluders that break up the
+body shape (bars, other animals) confuse the box regression.
+
+**3. Unusual appearances are confused with another class, and some "errors" are really missing labels.**
+`test/3 (8).jpg` shows an **Indian one-horned rhino** standing in tall grass. Almost all training rhinos
+are African white/black rhinos, and this one was labelled **elephant (0.39)**. In `test/3 (55).jpg` the dark
+black rhino also received an extra low-confidence *buffalo* box. In `test/4 (105).jpg` a group of
+**antelopes** (not one of our classes) triggered a weak *elephant* box (0.28). On the other hand, in
+`test/2 (290).jpg` the two extra "false-positive" zebras at the right edge are **real zebras without
+labels**. The COCO label check in section 2.3 flagged the same image. *Cause:* there are too few examples of
+rhino sub-species and of non-target animals, plus the incomplete labels found in section 2.3.
+
+Galleries: [missed](results/test_predictions/failures_missed.jpg) ·
+[false positives](results/test_predictions/failures_false_positive.jpg) ·
+[wrong class](results/test_predictions/failures_wrong_class.jpg) ·
+[poor boxes](results/test_predictions/failures_poor_box.jpg).
+
+**Practical next step:** fix the labels first. Review the 123 boxes flagged by
+`check_missing_labels.py` and fix the rhino labelled as zebra. Then add labelled examples of distant herds
+and of other rhino species, and retrain at **imgsz 640 or higher** (the experiment showed that resolution
+mainly affects box precision on small animals). Correct labels will also make the test precision more
+trustworthy, because some current "false positives" are real animals.
 
 ## 8. Limitations
 * The dataset is small (1,084 training images) and mostly contains clear, centred photos of animals. It
@@ -212,7 +292,8 @@ each image as **missed**, **false positive**, **wrong class** or **poor box**. G
 * Duplicate detection relies on perceptual hashes. Heavily cropped or mirrored copies may still slip through.
 * Moving cross-split duplicates to train makes val and test slightly smaller than the official split, so
   the numbers are not directly comparable to results reported on the official split.
-* Each configuration was trained once with one seed. Differences of about 1 mAP point may be noise.
+* Each configuration was trained once with one seed. Differences of about 1 mAP point may be noise (for
+  example, buffalo scoring higher at 320 px).
 * Only YOLO11n (the smallest model) and 40 epochs were tried, because of free Colab compute.
 
 ## 9. Credits and use of assistance

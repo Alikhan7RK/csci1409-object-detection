@@ -1,0 +1,6 @@
+{
+  "final_run": "baseline",
+  "imgsz": 640,
+  "weights": "runs/baseline/weights/best.pt",
+  "rule": "highest validation mAP@0.50 (ties within 0.005 broken by mAP@0.50:0.95)"
+}

@@ -1,0 +1,28 @@
+{
+  "run": "exp_imgsz320",
+  "config_file": "configs/exp_imgsz320.yaml",
+  "framework": "ultralytics 8.4.215",
+  "torch": "2.14.1+cu130",
+  "cuda": "13.0",
+  "gpu": "Tesla T4",
+  "python": "3.13.16",
+  "initial_weights": "yolo11n.pt",
+  "train_settings": {
+    "imgsz": 320,
+    "batch": 16,
+    "epochs": 40,
+    "optimizer": "SGD",
+    "lr0": 0.01,
+    "lrf": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "seed": 42,
+    "deterministic": true
+  },
+  "fraction": 1.0,
+  "training_time_seconds": 433.8,
+  "training_time_minutes": 7.23,
+  "save_dir": "runs/exp_imgsz320",
+  "best_checkpoint": "runs/exp_imgsz320/weights/best.pt",
+  "checkpoint_selection": "Ultralytics best.pt = epoch with the highest validation fitness (in ultralytics 8.4 fitness = validation mAP@0.5:0.95)"
+}

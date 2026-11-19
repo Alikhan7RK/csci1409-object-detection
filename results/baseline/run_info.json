@@ -1,0 +1,28 @@
+{
+  "run": "baseline",
+  "config_file": "configs/baseline.yaml",
+  "framework": "ultralytics 8.4.215",
+  "torch": "2.14.1+cu130",
+  "cuda": "13.0",
+  "gpu": "Tesla T4",
+  "python": "3.13.16",
+  "initial_weights": "yolo11n.pt",
+  "train_settings": {
+    "imgsz": 640,
+    "batch": 16,
+    "epochs": 40,
+    "optimizer": "SGD",
+    "lr0": 0.01,
+    "lrf": 0.01,
+    "momentum": 0.937,
+    "weight_decay": 0.0005,
+    "seed": 42,
+    "deterministic": true
+  },
+  "fraction": 1.0,
+  "training_time_seconds": 692.2,
+  "training_time_minutes": 11.54,
+  "save_dir": "runs/baseline",
+  "best_checkpoint": "runs/baseline/weights/best.pt",
+  "checkpoint_selection": "Ultralytics best.pt = epoch with the highest validation fitness (in ultralytics 8.4 fitness = validation mAP@0.5:0.95)"
+}

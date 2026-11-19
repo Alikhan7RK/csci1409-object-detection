@@ -1,0 +1,46 @@
+{
+  "run": "exp_imgsz320",
+  "split": "val",
+  "weights": "runs/exp_imgsz320/weights/best.pt",
+  "imgsz": 320,
+  "eval_conf_threshold": 0.001,
+  "nms_iou_threshold": 0.7,
+  "tp_iou_threshold_for_mAP50": 0.5,
+  "precision": 0.9449,
+  "recall": 0.8698,
+  "mAP50": 0.9488,
+  "mAP50_95": 0.7738,
+  "per_class": {
+    "buffalo": {
+      "precision": 0.9747,
+      "recall": 0.8958,
+      "mAP50": 0.9701,
+      "mAP50_95": 0.7991
+    },
+    "elephant": {
+      "precision": 0.9257,
+      "recall": 0.8161,
+      "mAP50": 0.9226,
+      "mAP50_95": 0.7585
+    },
+    "rhino": {
+      "precision": 0.9352,
+      "recall": 0.9114,
+      "mAP50": 0.9621,
+      "mAP50_95": 0.8231
+    },
+    "zebra": {
+      "precision": 0.944,
+      "recall": 0.8559,
+      "mAP50": 0.9406,
+      "mAP50_95": 0.7144
+    }
+  },
+  "speed_ms_per_image": {
+    "preprocess": 0.3,
+    "inference": 2.32,
+    "loss": 0.0,
+    "postprocess": 1.87
+  },
+  "plots_dir": "runs/eval/exp_imgsz320_val"
+}

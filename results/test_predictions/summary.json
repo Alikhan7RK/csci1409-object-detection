@@ -1,0 +1,17 @@
+{
+  "weights": "runs/baseline/weights/best.pt",
+  "split": "test",
+  "imgsz": 640,
+  "conf_threshold": 0.25,
+  "nms_iou": 0.7,
+  "match_iou": 0.5,
+  "TP": 320,
+  "wrong_class": 2,
+  "poor_box": 5,
+  "false_positive": 31,
+  "missed": 20,
+  "gt": 340,
+  "precision_at_conf": 0.8939,
+  "recall_at_conf": 0.9412,
+  "images_with_any_error": 42
+}
