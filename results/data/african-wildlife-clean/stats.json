@@ -1,0 +1,66 @@
+{
+  "splits": {
+    "train": {
+      "images": 1084,
+      "images_without_objects": 0,
+      "objects_total": 1982,
+      "objects_per_class": {
+        "buffalo": 417,
+        "elephant": 565,
+        "rhino": 413,
+        "zebra": 587
+      },
+      "images_containing_class": {
+        "buffalo": 281,
+        "elephant": 275,
+        "rhino": 273,
+        "zebra": 269
+      }
+    },
+    "val": {
+      "images": 215,
+      "images_without_objects": 0,
+      "objects_total": 363,
+      "objects_per_class": {
+        "buffalo": 86,
+        "elephant": 87,
+        "rhino": 79,
+        "zebra": 111
+      },
+      "images_containing_class": {
+        "buffalo": 59,
+        "elephant": 52,
+        "rhino": 50,
+        "zebra": 58
+      }
+    },
+    "test": {
+      "images": 205,
+      "images_without_objects": 0,
+      "objects_total": 340,
+      "objects_per_class": {
+        "buffalo": 51,
+        "elephant": 96,
+        "rhino": 67,
+        "zebra": 126
+      },
+      "images_containing_class": {
+        "buffalo": 39,
+        "elephant": 56,
+        "rhino": 49,
+        "zebra": 62
+      }
+    }
+  },
+  "label_issue_counts": {},
+  "near_duplicate_pairs": 72,
+  "cross_split_near_duplicate_pairs": 0,
+  "phash_threshold": 10,
+  "dhash_threshold": 10,
+  "median_box_area_fraction": {
+    "buffalo": 0.31966205000000003,
+    "zebra": 0.14887158236,
+    "elephant": 0.17278163124999998,
+    "rhino": 0.297282540456
+  }
+}

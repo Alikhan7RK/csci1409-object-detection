@@ -1,0 +1,14 @@
+# Dataset config (template). scripts/prepare_data.py writes a copy with an absolute
+# `path` to datasets/african-wildlife.yaml, which is what training uses.
+# Source: Ultralytics African Wildlife dataset (AGPL-3.0)
+# https://docs.ultralytics.com/datasets/detect/african-wildlife/
+path: ../datasets/african-wildlife
+train: images/train   # 1052 images
+val: images/val       # 225 images
+test: images/test     # 227 images
+
+names:
+  0: buffalo
+  1: elephant
+  2: rhino
+  3: zebra

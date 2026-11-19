@@ -1,0 +1,5 @@
+# Installed on top of the Colab runtime (Colab already provides torch, numpy, pandas, matplotlib, pillow).
+# The exact torch / CUDA / GPU used for every run is recorded in results/<run>/run_info.json.
+ultralytics==8.4.215
+imagehash==4.3.2
+tabulate==0.10.0

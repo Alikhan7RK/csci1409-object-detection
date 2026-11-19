@@ -1,0 +1,25 @@
+# Run B — controlled experiment: identical to baseline.yaml except imgsz 640 -> 320.
+# Same data split, same initial checkpoint (yolo11n.pt), same seed, epochs, lr, batch.
+model: yolo11n.pt            # COCO-pretrained YOLO11 nano (2.6M params)
+data: datasets/african-wildlife-clean.yaml
+name: exp_imgsz320
+project: runs
+imgsz: 320
+epochs: 40
+patience: 100                # effectively off: both runs train all 40 epochs
+batch: 16
+optimizer: SGD               # set explicitly ("auto" may pick a different optimizer/lr)
+lr0: 0.01
+lrf: 0.01
+momentum: 0.937
+weight_decay: 0.0005
+warmup_epochs: 3
+cos_lr: false
+seed: 42
+deterministic: true
+workers: 2
+cache: false
+pretrained: true
+plots: true
+save: true
+exist_ok: true
