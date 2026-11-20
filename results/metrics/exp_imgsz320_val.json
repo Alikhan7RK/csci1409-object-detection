@@ -37,10 +37,10 @@
     }
   },
   "speed_ms_per_image": {
-    "preprocess": 0.3,
-    "inference": 2.32,
+    "preprocess": 0.28,
+    "inference": 2.35,
     "loss": 0.0,
-    "postprocess": 1.87
+    "postprocess": 1.45
   },
   "plots_dir": "runs/eval/exp_imgsz320_val"
 }

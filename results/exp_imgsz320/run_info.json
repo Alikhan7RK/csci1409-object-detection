@@ -20,8 +20,8 @@
     "deterministic": true
   },
   "fraction": 1.0,
-  "training_time_seconds": 433.8,
-  "training_time_minutes": 7.23,
+  "training_time_seconds": 440.6,
+  "training_time_minutes": 7.34,
   "save_dir": "runs/exp_imgsz320",
   "best_checkpoint": "runs/exp_imgsz320/weights/best.pt",
   "checkpoint_selection": "Ultralytics best.pt = epoch with the highest validation fitness (in ultralytics 8.4 fitness = validation mAP@0.5:0.95)"

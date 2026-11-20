@@ -82,6 +82,12 @@ Ground-truth examples (training split):
 
 ## 3. Setup and how to run
 
+**Reproducibility check:** I ran the whole notebook twice from a fresh Colab runtime (19 and 20 Nov 2026).
+Both runs gave **identical** precision, recall and mAP values for every run and split (seed 42,
+`deterministic=True`). Only the wall-clock training times differed by a few seconds. The notebook in
+`notebooks/` is saved **with the outputs** of the second run, and `results/` and `weights/best.pt` come
+from that same run.
+
 **Colab (recommended):** click *Open in Colab*, select `Runtime → Change runtime type → T4 GPU`, then
 `Runtime → Run all`. The notebook clones this repo, installs the pinned dependencies, downloads and cleans
 the data, trains both runs, compares them, evaluates on test, shows predictions and failure cases, and
@@ -138,7 +144,7 @@ model.predict("some_image.jpg", conf=0.25, save=True)
 | Augmentation | Ultralytics defaults (mosaic, HSV jitter, horizontal flip, scale/translate), identical in both runs |
 | Seed | 42, `deterministic=True` |
 | Checkpoint selection | `best.pt` = epoch with the highest **validation** fitness (in Ultralytics 8.4 fitness = val mAP@0.5:0.95) |
-| Hardware / training time | Google Colab, **NVIDIA Tesla T4**. Baseline 11.5 min, experiment 7.2 min |
+| Hardware / training time | Google Colab, **NVIDIA Tesla T4**. Baseline 11.6 min, experiment 7.3 min |
 
 Configuration: [`configs/baseline.yaml`](configs/baseline.yaml) · logs: `results/baseline/results.csv` ·
 run details: `results/baseline/run_info.json`.
@@ -171,9 +177,9 @@ pixels at 320.
 
 | Run | Changed setting | Val precision | Val recall | Val mAP@0.50 | Val mAP@0.50:0.95 | Training time (min) | Inference (ms/img) |
 |---|---|---|---|---|---|---|---|
-| **baseline** | imgsz = 640 | **0.965** | **0.882** | **0.954** | **0.803** | 11.5 | 3.8 |
-| exp_imgsz320 | imgsz = 320 | 0.945 | 0.870 | 0.949 | 0.774 | **7.2** | **2.3** |
-| difference | | −0.020 | −0.012 | **−0.005** | **−0.029** | **−37 %** | **−40 %** |
+| **baseline** | imgsz = 640 | **0.965** | **0.882** | **0.954** | **0.803** | 11.6 | 3.6 |
+| exp_imgsz320 | imgsz = 320 | 0.945 | 0.870 | 0.949 | 0.774 | **7.3** | **2.4** |
+| difference | | −0.020 | −0.012 | **−0.005** | **−0.029** | **−37 %** | **−35 %** |
 
 Per class (val mAP@0.50 / mAP@0.50:0.95):
 
@@ -185,7 +191,7 @@ Per class (val mAP@0.50 / mAP@0.50:0.95):
 | zebra | 0.950 / 0.759 | 0.941 / 0.714 |
 
 **Explanation.** The hypothesis was **confirmed**. Halving the resolution cost only **0.5 points of
-mAP@0.50**, far below the 3-point limit I predicted, while training became 37 % faster and inference 40 %
+mAP@0.50**, far below the 3-point limit I predicted, while training became 37 % faster and inference 35 %
 faster. The animals are large, so at IoU 0.5 they are still found at 320 px.
 
 The cost appears in the **stricter metric**: mAP@0.50:0.95 dropped by **2.9 points**. At 320 px each pixel

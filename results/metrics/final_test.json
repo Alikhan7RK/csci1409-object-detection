@@ -37,10 +37,10 @@
     }
   },
   "speed_ms_per_image": {
-    "preprocess": 1.09,
-    "inference": 3.99,
+    "preprocess": 0.99,
+    "inference": 3.79,
     "loss": 0.0,
-    "postprocess": 1.99
+    "postprocess": 1.74
   },
   "plots_dir": "runs/eval/final_test"
 }

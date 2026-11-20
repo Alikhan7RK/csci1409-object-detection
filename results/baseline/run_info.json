@@ -20,8 +20,8 @@
     "deterministic": true
   },
   "fraction": 1.0,
-  "training_time_seconds": 692.2,
-  "training_time_minutes": 11.54,
+  "training_time_seconds": 697.8,
+  "training_time_minutes": 11.63,
   "save_dir": "runs/baseline",
   "best_checkpoint": "runs/baseline/weights/best.pt",
   "checkpoint_selection": "Ultralytics best.pt = epoch with the highest validation fitness (in ultralytics 8.4 fitness = validation mAP@0.5:0.95)"
